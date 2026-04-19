@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>枝繁叶茂 - 合作成长树</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 统一全局导航 */
+        .global-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #5a803f;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            gap: 22px;
+            align-items: center;
+            font-size: 14px;
+            z-index: 9999;
+        }
+        .global-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+        .global-nav a:hover {
+            opacity: 1;
+            font-weight: bold;
+        }
+        .global-nav a.active {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        body {
+            background-image: url('电脑-盛夏光年3.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding-top: 50px;
+        }
+
+        /* ====== 左侧导航栏 ====== */
+        .sidebar {
+            width: 80px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 30px;
+            z-index: 10;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            font-size: 20px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-icon:hover, .nav-icon.active {
+            background: #5a803f;
+            color: white;
+            box-shadow: 0 4px 10px rgba(90, 128, 63, 0.3);
+        }
+
+        /* ====== 中间：大树交互区 ====== */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 10px 30px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .header-title h1 { font-size: 24px; color: #2c3e20; }
+        .header-title p { font-size: 13px; color: #666; }
+
+        /* 【已调整】大树容器尺寸和位置 */
+        .tree-container {
+            position: relative;
+            width: 100%;
+            height: 75vh;
+            background-image: url('tree.png');
+            background-size: 80% auto; /* 缩小树图尺寸，适配容器 */
+            background-repeat: no-repeat;
+            background-position: center; /* 居中显示，避免偏下 */
+            border-radius: 20px;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+        }
+
+        /* 树上的互动果实/纸条节点 */
+        .fruit-node {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #5a803f;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 20px rgba(90, 128, 63, 0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: pulse 2s infinite;
+        }
+
+        .fruit-node:hover {
+            transform: scale(1.3);
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(90, 128, 63, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(90, 128, 63, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(90, 128, 63, 0); }
+        }
+
+        /* 悬停时显示小提示 */
+        .fruit-node::after {
+            content: attr(data-title);
+            position: absolute;
+            bottom: -30px;
+            white-space: nowrap;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+        .fruit-node:hover::after { opacity: 1; bottom: -25px; }
+
+        /* ====== 右侧：个人成就面板 ====== */
+        .right-panel {
+            width: 320px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            border-left: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            z-index: 10;
+            overflow-y: auto;
+        }
+
+        .profile { text-align: center; }
+        .profile img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 10px; }
+        .profile h3 { color: #2c3e20; }
+        .profile p { font-size: 12px; color: #666; }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .stat-header { font-size: 14px; font-weight: bold; color: #444; margin-bottom: 15px; display: flex; justify-content: space-between;}
+        
+        .progress-bar { width: 100%; height: 8px; background: #ddd; border-radius: 4px; margin-bottom: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #5a803f; width: 100%; border-radius: 4px; }
+
+        .blessing-card {
+            background: linear-gradient(135deg, #fff9e6, #fff0f0);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+            border-left: 4px solid #f39c12;
+            position: relative;
+        }
+        .blessing-card::before { content: "💌"; position: absolute; top: -10px; right: -5px; font-size: 20px; }
+
+        /* ====== 毛玻璃弹窗 Modal ====== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            width: 450px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.6);
+            transform: translateY(20px);
+            transition: 0.3s;
+            position: relative;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+
+        .modal-close {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 24px; color: #888;
+            cursor: pointer;
+        }
+        .modal-close:hover { color: #e74c3c; }
+
+        .modal-tag { display: inline-block; background: #eef2eb; color: #5a803f; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 15px; }
+        .modal-title { font-size: 22px; color: #2c3e20; margin-bottom: 15px; }
+        .modal-text { font-size: 15px; color: #444; line-height: 1.6; }
+        .modal-quote { margin-top: 20px; padding: 15px; background: rgba(90, 128, 63, 0.1); border-left: 3px solid #5a803f; font-style: italic; font-size: 14px; color: #555; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 统一全局导航 -->
+    <style>
+/* 统一全局导航 */
+.global-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #5a803f;
+    color: white;
+    padding: 12px 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* 关键：给每个链接加均匀间距 */
+    align-items: center;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.global-nav a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+    padding: 6px 10px; /* 给每个链接加内边距，防止挤在一起 */
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    white-space: nowrap; /* 防止文字换行 */
+}
+.global-nav a:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-1px);
+}
+.global-nav a.active {
+    font-weight: bold;
+    background: rgba(255,255,255,0.2);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+</style>
+
+<!-- 统一全局导航 -->
+<div class="global-nav">
+    <a href="index.html">封面页</a>
+    <a href="main.html">主页中心</a>
+    <a href="profile.html">个人档案</a>
+    <a href="forum.html">互助广场</a>
+    <a href="generator.html">沟通破冰</a>
+    <a href="actions.html">破冰行动库</a>
+    <a href="treaty.html">利益探测仪</a>
+    <a href="constitution.html">宿舍宪法</a>
+    <a href="boundary.html">边界守护站</a>
+    <a href="strategy.html">不合作指南</a>
+    <a href="emergency.html">紧急降温站</a>
+    <a href="scale.html" >量表测评中心</a>
+    <a href="tree.html" class="active">枝繁叶茂</a>
+</div>
+
+
+    <nav class="sidebar">
+        <a href="index.html" class="nav-icon" title="首页">🏠</a>
+        <a href="main.html" class="nav-icon" title="主页中心">🧭</a>
+        <a href="profile.html" class="nav-icon" title="个人档案">📊</a>
+        <a href="tree.html" class="nav-icon active" title="枝繁叶茂">🌳</a>
+    </nav>
+
+    <main class="main-content">
+        <div class="header-title">
+            <h1>🌳 枝繁叶茂，硕果累累</h1>
+            <p>点击树上的果实，回顾我们在七个单元中积攒的合作力量。</p>
+        </div>
+
+        <div class="tree-container">
+            <!-- 【已调整】节点位置，适配新的树图尺寸 -->
+            <div class="fruit-node" style="bottom: 35%; left: 48%;" data-title="第一单元" onclick="openModal(0)">🌱</div>
+            <div class="fruit-node" style="bottom: 50%; left: 30%;" data-title="第二单元" onclick="openModal(1)">⚡</div>
+            <div class="fruit-node" style="bottom: 55%; left: 65%;" data-title="第三单元" onclick="openModal(2)">🧠</div>
+            <div class="fruit-node" style="top: 35%; left: 35%;" data-title="第四单元" onclick="openModal(3)">💬</div>
+            <div class="fruit-node" style="top: 30%; left: 60%;" data-title="第五单元" onclick="openModal(4)">🤝</div>
+            <div class="fruit-node" style="top: 20%; left: 50%;" data-title="第六单元" onclick="openModal(5)">🛡️</div>
+            
+            <div class="fruit-node" style="top: 8%; left: 50%; transform: translateX(-50%) scale(1.2); border-color: #f1c40f;" data-title="第七单元：结业" onclick="openModal(6)">🌟</div>
+        </div>
+    </main>
+
+    <aside class="right-panel">
+        <div class="profile">
+            <img src="avatar.png" alt="Avatar">
+            <h3>Lin Zhang</h3>
+            <p>首席合作大使</p>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-header">
+                <span>团体培育进度</span>
+                <span style="color:#5a803f;">7 / 7 单元</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <p style="font-size: 12px; color: #888; margin-top: 8px;">完美浇灌！这棵树已经枝繁叶茂。</p>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-header"><span>🏆 我的合作勋章</span></div>
+            <div style="display: flex; gap: 10px; font-size: 24px;">
+                <span title="破冰先锋">🧊</span>
+                <span title="共情达人">❤️</span>
+                <span title="底线守卫者">🛡️</span>
+                <span title="公约起草人">📜</span>
+            </div>
+        </div>
+
+        <div class="stat-header" style="margin-top: 10px;">📮 同伴的临别赠言</div>
+        <div class="blessing-card">
+            “谢谢你在第四次活动演练时给我的鼓励！希望你以后的宿舍生活不再内耗，永远像今天这样充满阳光。”<br><br>
+            <span style="float: right; font-weight: bold;">—— 匿名小树叶</span>
+        </div>
+    </aside>
+
+    <div class="modal-overlay" id="modal">
+
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeModal()">×</div>
+            <div class="modal-tag" id="m-tag">单元名称</div>
+            <h2 class="modal-title" id="m-title">核心收获</h2>
+            <p class="modal-text" id="m-text">这里是你在该单元的成长记录。</p>
+            <div class="modal-quote" id="m-quote">“金句/纸条内容”</div>
+        </div>
+    </div>
+
+    <script>
+        const unitData = [
+            {
+                tag: "第一单元：初识与团队构建",
+                title: "🌱 信任的种子",
+                text: "在这个单元，我们签订了《团体契约》。我第一次意识到，原来大家都有着同样的宿舍烦恼。",
+                quote: "“认识你们真好，这不仅仅是破冰，更是我们共同面对问题的第一步。”"
+            },
+            {
+                tag: "第二单元：宿舍冲突直面观",
+                title: "⚡ 绘制冲突地图",
+                text: "我们把所有的隐忍和抱怨摊开在了桌面上。我学会了对事不对人，冲突本身并不可怕，可怕的是背后的误解。",
+                quote: "“冲突很多时候并非源于对与错，而是源于差异。”"
+            },
+            {
+                tag: "第三单元：认知重塑式合作",
+                title: "🧠 放下零和博弈",
+                text: "我算了一笔账，发现无论是‘硬刚’还是‘死忍’，代价都太大了。合作不是软弱，而是实现自己核心利益最聪明的策略。",
+                quote: "“最高级的自我保护，是找到共赢的解法，停止无谓的内耗。”"
+            },
+            {
+                tag: "第四单元：沟通破冰式合作",
+                title: "💬 掌握‘我-信息’",
+                text: "我练习了无数遍‘行为-感受-需求-请求’公式。现在，我敢于在舍友外放音乐时，不带指责地表达我的感受了。",
+                quote: "“温柔而坚定，这是化解防卫心理最强大的武器。”"
+            },
+            {
+                tag: "第五单元：问题解决式合作",
+                title: "🤝 共创宿舍宪法",
+                text: "我们学会了使用利益‘探测仪’，穿透对方的表面立场，找到了共同利益，并成功起草了符合 SMART 原则的公约。",
+                quote: "“把问题拿下谈判桌，将模糊的‘相互包容’变成清晰的规则。”"
+            },
+            {
+                tag: "第六单元：边界守护式合作",
+                title: "🛡️ 划定心理领地",
+                text: "不是所有关系都能亲密无间。对于合不来的室友，我学会了‘共存而不认同’的生存法则，把精力收回到了自己身上。",
+                quote: "“主动选择不在一个注定失败的战场上消耗自己，这是最高级的自我合作。”"
+            },
+            {
+                tag: "第七单元：巩固展望与总结",
+                title: "🌟 枝繁叶茂，奔赴新程",
+                text: "回顾这一路的轨迹，我看到了自己的蜕变。我不再害怕宿舍人际关系，因为我的手里已经握满了方法与力量。",
+                quote: "“带着这棵合作之树的养分，去面对真实的宿舍生活吧！祝我顺利！”"
+            }
+        ];
+
+        const modal = document.getElementById('modal');
+        
+        function openModal(index) {
+            document.getElementById('m-tag').innerText = unitData[index].tag;
+            document.getElementById('m-title').innerText = unitData[index].title;
+            document.getElementById('m-text').innerText = unitData[index].text;
+            document.getElementById('m-quote').innerText = unitData[index].quote;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

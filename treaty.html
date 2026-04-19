@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>协议共创室 - 利益探测仪</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: url('电脑-盛夏光年3.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 全站统一导航栏 */
+        .global-nav {
+            background: #5a803f;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            gap: 22px;
+            align-items: center;
+            font-size: 14px;
+        }
+        .global-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+        .global-nav a:hover {
+            opacity: 1;
+            font-weight: bold;
+        }
+        .global-nav a.active {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* ====== 北极：顶部导航栏 ====== */
+        .top-bar {
+            height: 60px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .search-bar {
+            width: 40%;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .top-icons {
+            display: flex;
+            gap: 20px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* ====== 中间主体内容区 ====== */
+        .main-workspace {
+            flex: 1;
+            display: flex;
+            padding: 30px;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.1); 
+            backdrop-filter: blur(8px);
+        }
+
+        /* --- 左侧栏：案例/选项 --- */
+        .col-left {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sys-title {
+            color: #2c3e20;
+            margin-bottom: 10px;
+        }
+
+        .sys-title h2 { font-size: 24px; }
+        .sys-title p { font-size: 12px; opacity: 0.8; }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: left;
+            font-weight: bold;
+            color: #444;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-btn:hover, .menu-btn.active {
+            background: rgba(90, 128, 63, 0.8);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* --- 中间栏：视觉冲突 --- */
+        .col-mid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .split-panel {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .panel-top { background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(220,100,100,0.3)); }
+        .panel-bottom { background: linear-gradient(to top, rgba(255,255,255,0.1), rgba(100,150,220,0.3)); }
+
+        .split-text {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 15px 25px;
+            border-radius: 8px;
+            border-left: 5px solid;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .top-text { border-color: #e74c3c; color: #c0392b; }
+        .bottom-text { border-color: #3498db; color: #2980b9; }
+
+        .conflict-banner {
+            background: #2c3e20;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            font-size: 16px;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+
+        /* --- 右侧栏：用户交互表单 --- */
+        .col-right {
+            width: 380px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .form-title {
+            font-size: 20px;
+            color: #5a803f;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #5a803f;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: #5a803f;
+            box-shadow: 0 0 8px rgba(90, 128, 63, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+        }
+
+        .btn-primary { background: #5a803f; color: white; }
+        .btn-primary:hover { background: #476632; }
+        
+        .btn-secondary { background: transparent; border: 1px solid #5a803f; color: #5a803f; }
+        .btn-secondary:hover { background: rgba(90, 128, 63, 0.1); }
+
+        /* ====== 南极：底部操作栏 ====== */
+        .bottom-bar {
+            height: 60px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .bottom-btn {
+            background: white;
+            padding: 8px 30px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #444;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        .bottom-btn:hover { background: #f0f5ec; color: #5a803f; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 全站统一导航栏（已按你所有文件名配置） -->
+   <style>
+/* 统一全局导航 */
+.global-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #5a803f;
+    color: white;
+    padding: 12px 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* 关键：给每个链接加均匀间距 */
+    align-items: center;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.global-nav a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+    padding: 6px 10px; /* 给每个链接加内边距，防止挤在一起 */
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    white-space: nowrap; /* 防止文字换行 */
+}
+.global-nav a:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-1px);
+}
+.global-nav a.active {
+    font-weight: bold;
+    background: rgba(255,255,255,0.2);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+</style>
+
+<!-- 统一全局导航 -->
+<div class="global-nav">
+    <a href="index.html">封面页</a>
+    <a href="main.html">主页中心</a>
+    <a href="profile.html">个人档案</a>
+    <a href="forum.html">互助广场</a>
+    <a href="generator.html">沟通破冰</a>
+    <a href="actions.html">破冰行动库</a>
+    <a href="treaty.html" class="active">利益探测仪</a>
+    <a href="constitution.html">宿舍宪法</a>
+    <a href="boundary.html">边界守护站</a>
+    <a href="strategy.html">不合作指南</a>
+    <a href="emergency.html">紧急降温站</a>
+    <a href="scale.html">量表测评中心</a>
+    <a href="evaluation.html">评估问卷</a>
+</div>
+
+    <div class="top-bar">
+        <div style="font-weight:bold; color:#2c3e20;">🌳 宿舍公约共创室</div>
+        <div class="search-bar">🔍 搜索或输入你想解决的宿舍烦恼...</div>
+        <div class="top-icons">🌐 ✉️ 🏠</div>
+    </div>
+
+    <div class="main-workspace">
+        
+        <div class="col-left">
+            <div class="sys-title">
+                <h2>CONFLICT ARCHIVE</h2>
+                <p>选择经典冲突场景，或自定义</p>
+            </div>
+            
+            <div class="menu-btn active" onclick="switchScenario('空调')">LOAD | 空调温度之争</div>
+            <div class="menu-btn" onclick="switchScenario('作息')">LOAD | 熬夜作息冲突</div>
+            <div class="menu-btn" onclick="switchScenario('卫生')">LOAD | 公共卫生分歧</div>
+            <div class="menu-btn" style="border-style: dashed; margin-top:20px;">+ NEW | 创建自定义冲突</div>
+        </div>
+
+        <div class="col-mid">
+            <div class="split-panel panel-top">
+            <img src="lc1.png" alt="封面图" class="card-image">
+
+                <div class="split-text top-text" id="ta-position">TA的立场：晚上睡觉必须开空调，20度最舒服</div>
+            </div>
+            
+            <div class="conflict-banner">SURFACE POSITION VS DEEP INTEREST</div>
+            
+            <div class="split-panel panel-bottom">
+            <img src="lc2.png" alt="封面图" class="card-image">
+
+                <div class="split-text bottom-text" id="my-position">我的立场：坚决不能开太冷，吹得头疼</div>
+            </div>
+        </div>
+
+        <div class="col-right">
+            <div class="form-title">利益探测仪 (INTEREST DETECTOR)</div>
+            
+            <div class="input-group">
+                <label>* 探测：TA背后的深层需求可能是？</label>
+                <select id="ta-need">
+                    <option>生理需求（真的很怕热/容易出汗）</option>
+                    <option>情绪需求（觉得冷一点才有安全感）</option>
+                    <option>习惯依赖（从小在家习惯了低室温）</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>* 探测：我背后的深层需求是什么？</label>
+                <select id="my-need">
+                    <option>健康需求（怕着凉、鼻炎容易犯）</option>
+                    <option>生理舒适（皮肤容易干）</option>
+                    <option>经济需求（想省点电费）</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>寻找共同利益 (COMMON GROUND)</label>
+                <input type="text" placeholder="例如：我们都希望能睡个好觉..." />
+            </div>
+
+            <div class="input-group">
+                <label>创造性解决方案草案</label>
+                <input type="text" placeholder="例如：空调开26度，TA加风扇，我盖厚被子" />
+            </div>
+
+            <div class="btn-group">
+                <button class="action-btn btn-primary" onclick="alert('即将根据您的探测结果生成SMART宿舍公约！')">GENERATE 转化为公约</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-bar">
+        <div class="bottom-btn">ATTRIBUTE | 冲突属性分析</div>
+        <div class="bottom-btn" style="background:#2c3e20; color:white;" onclick="location.href='main.html'">RETURN | 返回成长树</div>
+        <div class="bottom-btn">HELP | 求助导师干预</div>
+    </div>
+
+    <script>
+        function switchScenario(type) {
+            const buttons = document.querySelectorAll('.menu-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            const taText = document.getElementById('ta-position');
+            const myText = document.getElementById('my-position');
+            const taNeed = document.getElementById('ta-need');
+            const myNeed = document.getElementById('my-need');
+
+            if (type === '空调') {
+                taText.innerText = "TA的立场：晚上睡觉必须开空调，20度最舒服";
+                myText.innerText = "我的立场：坚决不能开太冷，吹得头疼";
+                taNeed.innerHTML = "<option>生理需求（怕热易出汗）</option><option>情绪需求（冷一点有安全感）</option>";
+                myNeed.innerHTML = "<option>健康需求（怕着凉）</option><option>经济需求（省电费）</option>";
+            } else if (type === '作息') {
+                taText.innerText = "TA的立场：晚上12点后才是我打游戏娱乐的时间";
+                myText.innerText = "我的立场：晚上11点半必须全黑并保持安静";
+                taNeed.innerHTML = "<option>社交需求（需要和朋友连麦）</option><option>解压需求（白天太累需要释放）</option>";
+                myNeed.innerHTML = "<option>健康需求（需要充足睡眠）</option><option>学业需求（第二天早八）</option>";
+            } else if (type === '卫生') {
+                taText.innerText = "TA的立场：东西放桌上乱一点没关系，我找得到就行";
+                myText.innerText = "我的立场：公共区域必须每天打扫，一尘不染";
+                taNeed.innerHTML = "<option>精力分配（不想把精力花在收纳上）</option><option>边界感模糊（认为宿舍就是家）</option>";
+                myNeed.innerHTML = "<option>秩序感需求（整洁的环境能带来掌控感）</option><option>卫生底线高（受不了异味或虫子）</option>";
+            }
+        }
+    </script>
+</body>
+</html>

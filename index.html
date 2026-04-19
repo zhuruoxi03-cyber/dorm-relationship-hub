@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎来到我的首页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background-image: url('电脑-盛夏光年1.png'); 
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            width: 450px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .play-icon-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.1);
+            clip-path: polygon(20% 0, 20% 100%, 100% 50%);
+            z-index: -1;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .glass-card h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .welcome-text p {
+            font-size: 16px;
+            margin-bottom: 8px;
+            opacity: 0.95;
+        }
+
+        .enter-btn {
+            margin-top: 25px;
+            padding: 10px 45px;
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .enter-btn:hover {
+            background: white;
+            color: #333;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+        <div class="play-icon-bg"></div>
+        
+        <img src="cat-Scottish-fold-1.png" alt="Profile" class="avatar">
+        
+        <h1>Ruo Xi</h1>
+        <p class="subtitle">
+            Nanjing University of Science and Technology<br>
+            School of computer science and engineering
+        </p>
+
+        <div class="welcome-text">
+            <p>Welcome to my personal website!</p>
+            <p>If you want to know more about me</p>
+            <p>please click</p>
+        </div>
+
+        <!-- 已修复：跳转到项目主页面 -->
+        <button class="enter-btn" onclick="window.location.href='main.html'">Enter</button>
+        <a href="main.html" class="nav-item"></a>
+    </div>
+
+</body>
+</html>

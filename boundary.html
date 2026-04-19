@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>边界守护站 - 绘制我的心理领地</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 统一全局导航 */
+        .global-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #5a803f;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            gap: 22px;
+            align-items: center;
+            font-size: 14px;
+            z-index: 9999;
+        }
+        .global-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+        .global-nav a:hover {
+            opacity: 1;
+            font-weight: bold;
+        }
+        .global-nav a.active {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        body {
+            background-image: url('电脑-盛夏光年1.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            padding-top: 50px; /* 留出顶部导航 */
+        }
+
+        /* 极简导航栏 (复用之前的设计) */
+        .sidebar {
+            width: 80px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 30px;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            font-size: 20px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-icon:hover, .nav-icon.active {
+            background: #5a803f;
+            color: white;
+            box-shadow: 0 4px 10px rgba(90, 128, 63, 0.3);
+        }
+
+        /* 主工作区 */
+        .workspace {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        /* 统一的毛玻璃面板样式 */
+        .panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(12px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e20;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid rgba(90, 128, 63, 0.2);
+            padding-bottom: 10px;
+        }
+
+        /* --- 左侧：行为词库 --- */
+        .behavior-bank {
+            width: 250px;
+            overflow-y: auto;
+        }
+
+        /* 可拖拽的行为卡片 */
+        .drag-item {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #444;
+            cursor: grab;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .drag-item:active { cursor: grabbing; }
+        .drag-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border-color: #5a803f;
+        }
+
+        /* 拖拽时的占位符虚影 */
+        .dragging {
+            opacity: 0.5;
+        }
+
+        /* --- 中间：领地地图 (拖放区) --- */
+        .territory-map {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 三色领地块 */
+        .zone {
+            flex: 1;
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px dashed;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 10px;
+            transition: all 0.3s;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .zone-header {
+            width: 100%;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 绿色柔软区 */
+        .zone-green {
+            background: rgba(46, 204, 113, 0.1);
+            border-color: #2ecc71;
+        }
+        .zone-green .zone-header { color: #27ae60; }
+
+        /* 黄色警示区 */
+        .zone-yellow {
+            background: rgba(241, 196, 15, 0.1);
+            border-color: #f1c40f;
+        }
+        .zone-yellow .zone-header { color: #d35400; }
+
+        /* 红色边界区 */
+        .zone-red {
+            background: rgba(231, 76, 60, 0.1);
+            border-color: #e74c3c;
+        }
+        .zone-red .zone-header { color: #c0392b; }
+
+        /* 当有物品拖到上方时的高亮效果 */
+        .zone.drag-over {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        /* --- 右侧：规则填写区 --- */
+        .rules-panel {
+            width: 350px;
+        }
+
+        .rule-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rule-label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .rule-textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.8);
+            resize: none;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: 0.3s;
+        }
+        .rule-textarea:focus { box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+
+        .btn-save {
+            background: #5a803f;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: auto;
+        }
+        .btn-save:hover { background: #476632; }
+
+    </style>
+</head>
+<body>
+
+    <style>
+/* 统一全局导航 */
+.global-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #5a803f;
+    color: white;
+    padding: 12px 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* 关键：给每个链接加均匀间距 */
+    align-items: center;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.global-nav a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+    padding: 6px 10px; /* 给每个链接加内边距，防止挤在一起 */
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    white-space: nowrap; /* 防止文字换行 */
+}
+.global-nav a:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-1px);
+}
+.global-nav a.active {
+    font-weight: bold;
+    background: rgba(255,255,255,0.2);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+</style>
+
+<!-- 统一全局导航 -->
+<div class="global-nav">
+    <a href="index.html">封面页</a>
+    <a href="main.html">主页中心</a>
+    <a href="profile.html">个人档案</a>
+    <a href="forum.html">互助广场</a>
+    <a href="generator.html">沟通破冰</a>
+    <a href="actions.html">破冰行动库</a>
+    <a href="treaty.html">利益探测仪</a>
+    <a href="constitution.html">宿舍宪法</a>
+    <a href="boundary.html" class="active">边界守护站</a>
+    <a href="strategy.html">不合作指南</a>
+    <a href="emergency.html">紧急降温站</a>
+    <a href="scale.html">量表测评中心</a>
+    <a href="tree.html">枝繁叶茂</a>
+</div>
+
+    <nav class="sidebar">
+        <a href="index.html" class="nav-icon" title="首页">🏠</a>
+        <a href="main.html" class="nav-icon" title="主页中心">🌳</a>
+        <a href="boundary.html" class="nav-icon active" title="领地守护站">🛡️</a>
+    </nav>
+
+    <div class="workspace">
+        
+        <div class="panel behavior-bank">
+            <div class="panel-title">📦 宿舍行为库</div>
+            <p style="font-size: 12px; color: #888; margin-bottom: 15px;">请将下方卡片拖拽到右侧对应的领地中。</p>
+            
+            <div id="bank" class="zone" style="border:none; padding:0; background:transparent;">
+                <div class="drag-item" draggable="true">借用我的指甲剪/文具</div>
+                <div class="drag-item" draggable="true">未经允许用我的化妆品/护肤品</div>
+                <div class="drag-item" draggable="true">晚上11点后大声连麦打游戏</div>
+                <div class="drag-item" draggable="true">带同性朋友回宿舍短暂停留</div>
+                <div class="drag-item" draggable="true">带异性朋友进入宿舍</div>
+                <div class="drag-item" draggable="true">不参与宿舍公共区域大扫除</div>
+                <div class="drag-item" draggable="true">在宿舍内抽烟/电子烟</div>
+                <div class="drag-item" draggable="true">吃螺蛳粉等重气味食物</div>
+                <div class="drag-item" draggable="true">未经允许躺我的床</div>
+            </div>
+        </div>
+
+        <div class="panel territory-map">
+            <div class="panel-title">🗺️ 我的心理领地地图</div>
+            
+            <div class="zone zone-green" id="zone-green">
+                <div class="zone-header">🟩 绿色柔软区 (我完全可以接纳/包容)</div>
+            </div>
+
+            <div class="zone zone-yellow" id="zone-yellow">
+                <div class="zone-header">🟨 黄色警示区 (让我不舒服，需要协商)</div>
+            </div>
+
+            <div class="zone zone-red" id="zone-red">
+                <div class="zone-header">🟥 红色边界区 (绝对底线，零容忍)</div>
+            </div>
+        </div>
+
+        <div class="panel rules-panel">
+            <div class="panel-title">✍️ 领地守护规则</div>
+            
+            <div class="rule-group">
+                <div class="rule-label" style="color:#27ae60;">🟩 绿色区·共存法则</div>
+                <textarea class="rule-textarea" placeholder="对于绿色区的事项，我的态度是...（例如：大家随意，不用太拘谨）"></textarea>
+            </div>
+
+            <div class="rule-group">
+                <div class="rule-label" style="color:#d35400;">🟨 黄色区·协商预案</div>
+                <textarea class="rule-textarea" placeholder="当有人触碰黄色区，我会这样沟通...（例如：我会先用'我-信息'表达感受，并提出具体要求）"></textarea>
+            </div>
+
+            <div class="rule-group">
+                <div class="rule-label" style="color:#c0392b;">🟥 红色区·防御底线</div>
+                <textarea class="rule-textarea" placeholder="一旦有人侵犯红色边界，我将采取的行动是...（例如：直接严厉拒绝，若不听则上报辅导员，绝不退让）"></textarea>
+            </div>
+
+            <button class="btn-save" onclick="saveTerritory()">保存我的边界设定</button>
+        </div>
+
+    </div>
+
+    <script>
+        const draggables = document.querySelectorAll('.drag-item');
+        const zones = document.querySelectorAll('.zone');
+
+        // 1. 给每个卡片绑定拖拽事件
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', () => {
+                draggable.classList.add('dragging');
+            });
+
+            draggable.addEventListener('dragend', () => {
+                draggable.classList.remove('dragging');
+            });
+        });
+
+        // 2. 给每个领地区域绑定放置事件
+        zones.forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const draggable = document.querySelector('.dragging');
+                zone.appendChild(draggable);
+            });
+        });
+
+        function saveTerritory() {
+            const redItems = document.querySelectorAll('#zone-red .drag-item');
+            const redBehaviors = Array.from(redItems).map(item => item.innerText);
+
+            if (redBehaviors.length === 0) {
+                alert("你还没有划定任何红色底线哦！底线越清晰，人际关系越轻松。");
+                return;
+            }
+
+            alert("✅ 保存成功！\n\n你的红色底线包括：\n" + redBehaviors.join("\n"));
+        }
+    </script>
+</body>
+</html>

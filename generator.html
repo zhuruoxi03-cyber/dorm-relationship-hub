@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沟通破冰 - “我-信息”生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* 背景图改为你文件夹里的真实文件 */
+            background-image: url('电脑-盛夏光年1.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 极简侧边导航 (仅保留图标) */
+        .sidebar {
+            width: 80px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 30px;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            font-size: 20px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-icon:hover, .nav-icon.active {
+            background: #5a803f;
+            color: white;
+            box-shadow: 0 4px 10px rgba(90, 128, 63, 0.3);
+        }
+
+        /* 左侧输入区 (行为、感受、需求、请求) */
+        .input-panel {
+            width: 400px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            margin-bottom: 25px;
+        }
+
+        .panel-header h2 {
+            color: #2c3e20;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .panel-header p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            resize: none;
+            height: 80px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #5a803f;
+            box-shadow: 0 0 5px rgba(90, 128, 63, 0.3);
+        }
+
+        .generate-btn {
+            background: #5a803f;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .generate-btn:hover {
+            background: #476632;
+        }
+
+        /* 右侧模拟聊天区 */
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(245, 247, 242, 0.85); /* 极淡的绿色背景 */
+            backdrop-filter: blur(10px);
+        }
+
+        /* 聊天头部 */
+        .chat-header {
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            background: #99c47e;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .chat-title h3 {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .chat-title p {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* 聊天消息区 */
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+
+        .message-wrapper.system {
+            align-self: flex-start;
+        }
+
+        .message-wrapper.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message-sender {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        .message-bubble {
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-size: 15px;
+            line-height: 1.6;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .system .message-bubble {
+            background: white;
+            border-top-left-radius: 2px;
+            color: #333;
+        }
+
+        .user .message-bubble {
+            background: #5a803f;
+            color: white;
+            border-top-right-radius: 2px;
+        }
+
+        /* 润色建议列表样式 */
+        .feedback-list {
+            margin-top: 10px;
+            padding-left: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .feedback-list li {
+            margin-bottom: 5px;
+        }
+
+        .polished-text {
+            background: #f0f5eb;
+            padding: 10px;
+            border-left: 4px solid #5a803f;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #2c3e20;
+        }
+
+        /* 底部假输入框 (仅作装饰，提升UI真实感) */
+        .chat-input-area {
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .fake-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: #f5f5f5;
+            border-radius: 30px;
+            color: #aaa;
+            font-size: 14px;
+            border: 1px solid #eee;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <a href="index.html" class="nav-icon" title="首页">🏠</a>
+        <a href="main.html" class="nav-icon" title="主页中心">🌳</a>
+        <a href="generator.html" class="nav-icon active" title="我-信息生成器">💬</a>
+        <a href="profile.html" class="nav-icon" title="个人档案">📊</a>
+        <a href="forum.html" class="nav-icon" title="互助广场">🤝</a>
+        <a href="scale.html" class="nav-icon" title="量表测评">📏</a>
+        <a href="evaluation.html" class="nav-icon" title="评估问卷">📝</a>
+        <a href="treaty.html" class="nav-icon" title="冲突直面观">⚖️</a>
+        <a href="constitution.html" class="nav-icon" title="协议共创">📜</a>
+        <a href="boundary.html" class="nav-icon" title="边界守护">🛡️</a>
+        <a href="strategy.html" class="nav-icon" title="认知重塑">🧠</a>
+        <a href="tree.html" class="nav-icon" title="枝繁叶茂">🌱</a>
+    </nav>
+
+    <div class="input-panel">
+        <div class="panel-header">
+            <h2>“我-信息” 调试工坊</h2>
+            <p>不要指责，只陈述事实与感受。请填写以下四个要素，我们将为你生成最不容易引发防卫的沟通话术。</p>
+        </div>
+
+        <div class="form-group">
+            <label>📷 1. 观察到的行为 (客观描述，像摄像头一样)</label>
+            <textarea id="input-behavior" placeholder="例如：晚上11点后你在宿舍连麦打游戏并突然大声说话..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>❤️ 2. 我的真实感受 (情绪词汇)</label>
+            <textarea id="input-feeling" placeholder="例如：我感到会被吓醒，心跳很快，并且有些烦躁..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>🌱 3. 我的根本需求 (为什么有这个感受)</label>
+            <textarea id="input-need" placeholder="例如：因为我需要一个稳定的睡眠环境来保证明天的考试状态..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>🎯 4. 具体可行的请求 (SMART原则)</label>
+            <textarea id="input-request" placeholder="例如：你是否愿意在11点后戴上耳机，并尽量压低声音？"></textarea>
+        </div>
+
+        <button class="generate-btn" onclick="generateMessage()">生成并润色话术</button>
+    </div>
+
+    <div class="chat-panel">
+        <div class="chat-header">
+            <div class="chat-avatar">🤖</div>
+            <div class="chat-title">
+                <h3>沟通破冰助理</h3>
+                <p>实时分析与语气润色中...</p>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chat-box">
+            <div class="message-wrapper system">
+                <div class="message-sender">沟通破冰助理</div>
+                <div class="message-bubble">
+                    你好！请在左侧填写你想对室友说的话的核心要素。完成后点击“生成”，我会帮你预览效果，并提供语气优化的建议。
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="fake-input">生成的话术将在这里显示... (左侧填表生成)</div>
+        </div>
+    </div>
+
+    <script>
+        function generateMessage() {
+            // 1. 获取用户的四个输入
+            const behavior = document.getElementById('input-behavior').value.trim();
+            const feeling = document.getElementById('input-feeling').value.trim();
+            const need = document.getElementById('input-need').value.trim();
+            const request = document.getElementById('input-request').value.trim();
+
+            // 简单校验
+            if (!behavior || !feeling || !need || !request) {
+                alert("请先填满四个要素，才能施展魔法哦！");
+                return;
+            }
+
+            const chatBox = document.getElementById('chat-box');
+
+            // 2. 拼接原始的“我-信息”
+            const rawMessage = `当 you ${behavior} 时，我感到 ${feeling}，因为我需要 ${need}。你是否愿意 ${request}？`;
+
+            // 3. 将用户的原始信息作为气泡插入到聊天框 (右侧绿色气泡)
+            const userHtml = `
+                <div class="message-wrapper user">
+                    <div class="message-sender">我（发送给室友的草稿）</div>
+                    <div class="message-bubble">${rawMessage}</div>
+                </div>
+            `;
+            chatBox.innerHTML += userHtml;
+
+            // 4. 模拟 AI 的延迟润色回复 (左侧白色气泡)
+            setTimeout(() => {
+                const systemHtml = `
+                    <div class="message-wrapper system">
+                        <div class="message-sender">沟通破冰助理</div>
+                        <div class="message-bubble">
+                            这份草稿结构很棒，已经完全避开了指责！为了让语气更加缓和，增加对方接受的概率，我建议：
+                            <ul class="feedback-list">
+                                <li>开头可以加上称呼和缓冲语（如“嗨，有个事想跟你商量一下”）。</li>
+                                <li>用词可以稍微软化，显得更像是“求助”而不是“命令”。</li>
+                            </ul>
+                            <div class="polished-text">
+                                💡 润色建议：<br>
+                                “嗨，有个小事想跟你商量下。晚上 ${behavior} 时，我这边真的会感到 ${feeling}。最近实在太累了，很需要 ${need}。所以想麻烦你，是否愿意 ${request}？非常感谢你的理解！”
+                            </div>
+                        </div>
+                    </div>
+                `;
+                chatBox.innerHTML += systemHtml;
+                
+                // 自动滚动到最底部
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 800); // 模拟 0.8秒的“AI思考”时间
+        }
+    </script>
+</body>
+</html>

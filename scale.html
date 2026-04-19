@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心理量表中心 - 探索自我</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 统一全局导航 */
+        .global-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #5a803f;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            gap: 22px;
+            align-items: center;
+            font-size: 14px;
+            z-index: 9999;
+        }
+        .global-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+        .global-nav a:hover {
+            opacity: 1;
+            font-weight: bold;
+        }
+        .global-nav a.active {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        body {
+            background-image: url('电脑-盛夏光年3.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.2);
+            background-blend-mode: overlay;
+            padding-top: 50px; /* 避开顶部导航 */
+        }
+
+        /* 核心容器：大毛玻璃面板 */
+        .app-container {
+            width: 95%;
+            max-width: 1400px;
+            height: 88vh;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            display: flex;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* ====== 左侧导航栏 ====== */
+        .sidebar {
+            width: 220px;
+            background: rgba(255, 255, 255, 0.4);
+            border-right: 1px solid rgba(0,0,0,0.05);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e20;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover { background: rgba(90, 128, 63, 0.1); color: #5a803f; }
+        .nav-item.active { background: #5a803f; color: white; box-shadow: 0 4px 10px rgba(90, 128, 63, 0.3); }
+
+        .upgrade-box {
+            margin-top: auto;
+            background: linear-gradient(135deg, #eef2eb, #dce8d2);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .upgrade-box p { font-size: 13px; color: #555; margin-bottom: 15px; line-height: 1.5; }
+        .btn-upgrade { background: #5a803f; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+
+        /* ====== 中间主内容区 ====== */
+        .main-content {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部搜索栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            background: white;
+            border: 1px solid #eee;
+            padding: 12px 20px;
+            border-radius: 30px;
+            width: 300px;
+            outline: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        /* 大横幅 Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, #7cb359, #4a6b32);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(90, 128, 63, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-text h1 { font-size: 28px; margin-bottom: 10px; }
+        .hero-text p { font-size: 15px; opacity: 0.9; margin-bottom: 20px; max-width: 80%; line-height: 1.5; }
+        .btn-learn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; backdrop-filter: blur(5px); }
+
+        /* 量表卡片网格 */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-header h2 { font-size: 20px; color: #333; }
+        .view-all { color: #888; font-size: 14px; cursor: pointer; }
+
+        .scale-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        /* 卡片样式 (马卡龙柔和配色) */
+        .scale-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.04);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .scale-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+
+        .card-cover {
+            height: 120px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+        }
+
+        /* 分配不同的卡片颜色 */
+        .bg-blue { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); }
+        .bg-orange { background: linear-gradient(135deg, #fbc2eb, #a6c1ee); } /* 紫粉色 */
+        .bg-green { background: linear-gradient(135deg, #d4fc79, #96e6a1); }
+        .bg-peach { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
+
+        .scale-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 8px; line-height: 1.4; }
+        .scale-desc { font-size: 12px; color: #888; margin-bottom: 15px; flex: 1; }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .rating { background: white; padding: 4px 8px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        /* ====== 右侧面板：用户状态与进度 ====== */
+        .right-panel {
+            width: 320px;
+            background: rgba(255, 255, 255, 0.4);
+            border-left: 1px solid rgba(0,0,0,0.05);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .user-profile { text-align: center; }
+        .user-profile img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 10px; }
+        .user-profile h3 { font-size: 18px; color: #333; }
+
+        /* 进度成就框 */
+        .achievement-box {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .achieve-title { font-size: 15px; font-weight: bold; margin-bottom: 15px; }
+        
+        .progress-item { margin-bottom: 15px; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; color: #555; }
+        .progress-bar { height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #5a803f; border-radius: 3px; }
+
+        /* 测试历史记录 */
+        .history-list { display: flex; flex-direction: column; gap: 15px; }
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .history-icon { width: 40px; height: 40px; border-radius: 8px; background: #eef2eb; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        .history-text h4 { font-size: 14px; margin-bottom: 3px; color: #333; }
+        .history-text p { font-size: 11px; color: #888; }
+        .btn-view { margin-left: auto; background: #5a803f; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 统一全局导航 -->
+    <style>
+/* 统一全局导航 */
+.global-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #5a803f;
+    color: white;
+    padding: 12px 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* 关键：给每个链接加均匀间距 */
+    align-items: center;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.global-nav a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+    padding: 6px 10px; /* 给每个链接加内边距，防止挤在一起 */
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    white-space: nowrap; /* 防止文字换行 */
+}
+.global-nav a:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-1px);
+}
+.global-nav a.active {
+    font-weight: bold;
+    background: rgba(255,255,255,0.2);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+</style>
+
+<!-- 统一全局导航 -->
+<div class="global-nav">
+    <a href="index.html">封面页</a>
+    <a href="main.html">主页中心</a>
+    <a href="profile.html">个人档案</a>
+    <a href="forum.html">互助广场</a>
+    <a href="generator.html">沟通破冰</a>
+    <a href="actions.html">破冰行动库</a>
+    <a href="treaty.html">利益探测仪</a>
+    <a href="constitution.html">宿舍宪法</a>
+    <a href="boundary.html">边界守护站</a>
+    <a href="strategy.html">不合作指南</a>
+    <a href="emergency.html">紧急降温站</a>
+    <a href="scale.html" class="active">量表测评中心</a>
+    <a href="tree.html">枝繁叶茂</a>
+</div>
+
+    <div class="app-container">
+        
+        <div class="sidebar">
+            <div class="brand">🌳 宿舍关系站</div>
+            <a href="index.html" class="nav-item">🏠 封面页</a>
+            <a href="main.html" class="nav-item">🧭 主页中心</a>
+            <a href="scale.html" class="nav-item active">📊 量表测评中心</a>
+            <a href="profile.html" class="nav-item">📈 个人档案</a>
+            <a href="boundary.html" class="nav-item">🛡️ 边界守护站</a>
+            <a href="strategy.html" class="nav-item">♟️ 不合作指南</a>
+            <a href="emergency.html" class="nav-item">🧊 紧急降温站</a>
+            
+            <div class="upgrade-box">
+                <p>完成所有基线测试，解锁深度专属干预方案</p>
+                <button class="btn-upgrade">查看进度 →</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <input type="text" class="search-box" placeholder="🔍 搜索心理测评量表...">
+                <div style="display: flex; gap: 15px; font-size: 20px;">
+                    <span>🔔</span>
+                    <span>⚙️</span>
+                </div>
+            </div>
+
+            <div class="hero-banner">
+                <div class="hero-text">
+                    <h1>Hi, Ruo Xi</h1>
+                    <p>了解自己是建立良好合作关系的第一步。完成专业心理量表测评，我们将为你生成专属的宿舍人际关系诊断报告。</p>
+                    <button class="btn-learn">查看我的干预计划</button>
+                </div>
+                <div style="font-size: 80px; opacity: 0.9;">🧩</div>
+            </div>
+
+            <div class="section-header">
+                <h2>核心测评量表 (Popular)</h2>
+                <div class="view-all">查看全部量表</div>
+            </div>
+
+            <div class="scale-grid">
+                
+                <div class="scale-card" onclick="window.location.href='evaluation.html'">
+                    <div class="card-cover bg-blue">⚔️</div>
+                    <div class="scale-title">宿舍人际冲突应对方式量表</div>
+                    <div class="scale-desc">测测你在宿舍发生矛盾时，是倾向于竞争、回避，还是合作？</div>
+                    <div class="card-footer">
+                        <span>👥 1,245 人测过</span>
+                        <span class="rating">⭐ 4.8</span>
+                    </div>
+                </div>
+
+                <div class="scale-card" onclick="window.location.href='evaluation.html'">
+                    <div class="card-cover bg-green">🛡️</div>
+                    <div class="scale-title">大学生人际边界清晰度自测</div>
+                    <div class="scale-desc">评估你在维护个人空间和尊重他人边界方面的能力。</div>
+                    <div class="card-footer">
+                        <span>👥 892 人测过</span>
+                        <span class="rating">⭐ 4.9</span>
+                    </div>
+                </div>
+
+                <div class="scale-card" onclick="window.location.href='evaluation.html'">
+                    <div class="card-cover bg-orange">💬</div>
+                    <div class="scale-title">沟通效能感与共情测试</div>
+                    <div class="scale-desc">你真的能听懂室友的话吗？测试你的同理心与表达清晰度。</div>
+                    <div class="card-footer">
+                        <span>👥 2,103 人测过</span>
+                        <span class="rating">🔥 Top 1</span>
+                    </div>
+                </div>
+
+                <div class="scale-card" onclick="window.location.href='evaluation.html'">
+                    <div class="card-cover bg-peach">🔋</div>
+                    <div class="scale-title">个人情绪内耗指数评估</div>
+                    <div class="scale-desc">宿舍关系是否在悄悄吸走你的能量？进行深度的自我觉察。</div>
+                    <div class="card-footer">
+                        <span>👥 1,560 人测过</span>
+                        <span class="rating">⭐ 4.7</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="user-profile">
+                <img src="cat-Scottish-fold-1.png" alt="User">
+                <h3>Ruo Xi</h3>
+                <p style="font-size: 13px; color: #888;">🏅 合作关系探索者</p>
+            </div>
+
+            <div class="achievement-box">
+                <div class="achieve-title">🎯 测评完成度</div>
+                
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span>基础基线测评</span>
+                        <span>2/4 完成</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%;"></div>
+                    </div>
+                </div>
+
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span>干预后追踪测验</span>
+                        <span>0/4 完成</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%; background: #e74c3c;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="achieve-title" style="display: flex; justify-content: space-between;">
+                    <span>📝 最近报告</span>
+                    <span style="font-size: 12px; color: #888; cursor: pointer;">更多</span>
+                </div>
+                
+                <div class="history-list">
+                    <div class="history-item">
+                        <div class="history-icon">⚔️</div>
+                        <div class="history-text">
+                            <h4>冲突应对量表</h4>
+                            <p>结果：回避型倾向</p>
+                        </div>
+                        <button class="btn-view" onclick="alert('Java将渲染详细报告页面')">查看</button>
+                    </div>
+
+                    <div class="history-item">
+                        <div class="history-icon">🛡️</div>
+                        <div class="history-text">
+                            <h4>边界清晰度</h4>
+                            <p>结果：边界较为模糊</p>
+                        </div>
+                        <button class="btn-view" onclick="alert('Java将渲染详细报告页面')">查看</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合作成长树 - 主页中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f2f7ec;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 160px;
+            background: rgba(153, 196, 126, 0.85);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 15px;
+            padding: 30px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            display: block;
+            text-align: center;
+            padding: 15px 0;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 40px;
+            width: calc(100% - 220px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .main-title {
+            font-size: 28px;
+            color: #5a803f;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .sub-title {
+            font-size: 20px;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 50px 80px;
+            max-width: 1000px;
+        }
+
+        .module-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .circle-frame {
+            width: 160px;
+            height: 160px;
+            background-color: #2c3e20;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .circle-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #e2ecd8; 
+        }
+
+        .module-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .module-quote {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            width: 180px;
+        }
+
+        .back-to-top {
+            position: fixed;
+            right: 40px;
+            bottom: 40px;
+            width: 50px;
+            height: 50px;
+            background-color: #99c47e;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <a href="index.html" class="nav-item">封面页</a>
+        <a href="main.html" class="nav-item active">主页中心</a>
+        <a href="profile.html" class="nav-item">个人档案</a>
+        <a href="forum.html" class="nav-item">互助广场</a>
+        <a href="scale.html" class="nav-item">量表测评</a>
+        <a href="emergency.html" class="nav-item">紧急情况</a>
+    </nav>
+
+    <main class="main-content">
+        <div class="header-section">
+            <h1 class="main-title">🌳 合作成长树</h1>
+            <h2 class="sub-title">🌿 树的枝干：单元入口</h2>
+            <p class="description">在这里，我们将通过六个步骤，一步步化解冲突，长出属于你的合作之树。</p>
+        </div>
+
+        <div class="module-grid">
+            <!-- 冲突直面观 → 利益探测仪 -->
+            <div class="module-card" onclick="location.href='treaty.html'">
+                <div class="circle-frame">
+                    <img src="schoolbuilding_1.png" alt="冲突诊断" class="circle-img">
+                </div>
+                <div class="module-title">《冲突直面观》</div>
+                <div class="module-quote">“理清线索，绘制出我们的宿舍冲突地图。”</div>
+            </div>
+
+            <!-- 认知重塑 → 不合作指南 -->
+            <div class="module-card" onclick="location.href='strategy.html'">
+                <div class="circle-frame">
+                    <img src="Workshop_1.png" alt="认知重塑" class="circle-img">
+                </div>
+                <div class="module-title">《认知重塑》</div>
+                <div class="module-quote">“从零和博弈中跳出，寻找更聪明的解法。”</div>
+            </div>
+
+            <!-- 沟通破冰 → 我-信息生成器 -->
+            <div class="module-card" onclick="location.href='generator.html'">
+                <div class="circle-frame">
+                    <img src="post_2.png" alt="沟通破冰" class="circle-img">
+                </div>
+                <div class="module-title">《沟通破冰》</div>
+                <div class="module-quote">“掌握'我-信息'，用最不具攻击性的方式表达自己。”</div>
+            </div>
+
+            <!-- 协议共创 → 宿舍宪法 -->
+            <div class="module-card" onclick="location.href='constitution.html'">
+                <div class="circle-frame">
+                    <img src="lighthouse_3.png" alt="问题解决" class="circle-img">
+                </div>
+                <div class="module-title">《协议共创》</div>
+                <div class="module-quote">“把问题拿下谈判桌，共同起草我们的宿舍宪法。”</div>
+            </div>
+
+            <!-- 边界守护 → 边界守护站 -->
+            <div class="module-card" onclick="location.href='boundary.html'">
+                <div class="circle-frame">
+                    <img src="vegetable-6.png" alt="边界守护" class="circle-img">
+                </div>
+                <div class="module-title">《边界守护》</div>
+                <div class="module-quote">“划定心理领地，学习共存而不认同的生存法则。”</div>
+            </div>
+
+            <!-- 枝繁叶茂 → 紧急降温站 -->
+            <div class="module-card" onclick="location.href='tree.html'">
+                <div class="circle-frame">
+                    <img src="rabbit-2.png" alt="巩固展望" class="circle-img">
+                </div>
+                <div class="module-title">《枝繁叶茂》</div>
+                <div class="module-quote">“记录成长轨迹，将合作理念延续到真实的宿舍中。”</div>
+            </div>
+        </div>
+    </main>
+
+    <a href="#top" class="back-to-top">↑</a>
+
+</body>
+</html>
